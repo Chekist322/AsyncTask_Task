@@ -62,7 +62,7 @@ public class SecondScreenActivity extends AppCompatActivity implements TaskListe
 
         private boolean mIsWorking = false;
         private WeakReference<TaskListener> mListener;
-        private static final int LONG_TASK_WORK_DURATION = 10;
+        private static final int LONG_TASK_WORK_DURATION = 20;
 
         /**
          * Constructor.
@@ -83,7 +83,11 @@ public class SecondScreenActivity extends AppCompatActivity implements TaskListe
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             mIsWorking = false;
-            mListener.get().onTaskFinished();
+            Log.i(TAG, "onPostExecute: " + String.valueOf(mListener.get()));
+            Log.i(TAG, "onPostExecute: " + String.valueOf(mListener));
+            if (mListener != null) {
+                mListener.get().onTaskFinished();
+            }
             mListener = null;
         }
 
