@@ -10,4 +10,6 @@
     <string name="task_restarted">The task was restarted!</string>
     <string name="task_finished">Task finished!</string>
     <string name="task_in_progress">Task is already in progress…</string>
+    <string name="task_denied">Task denied…</string>
+    <string name="task_not_active">Task is not active.</string>
 </resources>

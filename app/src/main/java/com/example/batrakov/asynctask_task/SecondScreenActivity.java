@@ -10,6 +10,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.lang.ref.WeakReference;
+
 /**
  * Contains target AsyncTasks.
  * Created by batrakov on 12.10.17.
@@ -59,15 +61,16 @@ public class SecondScreenActivity extends AppCompatActivity implements TaskListe
     private final class WorkerAsyncTask extends AsyncTask<Void, Integer, Void> {
 
         private boolean mIsWorking = false;
-        private TaskListener mListener;
+        private WeakReference<TaskListener> mListener;
         private static final int LONG_TASK_WORK_DURATION = 10;
 
         /**
          * Constructor.
+         *
          * @param aListener link to communicate with UI.
          */
         private WorkerAsyncTask(TaskListener aListener) {
-            mListener = aListener;
+            mListener = new WeakReference<>(aListener);
         }
 
         @Override
@@ -80,7 +83,7 @@ public class SecondScreenActivity extends AppCompatActivity implements TaskListe
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             mIsWorking = false;
-            mListener.onTaskFinished();
+            mListener.get().onTaskFinished();
             mListener = null;
         }
 
@@ -107,10 +110,11 @@ public class SecondScreenActivity extends AppCompatActivity implements TaskListe
 
         /**
          * Set a new listener if Activity was recreated.
+         *
          * @param aListener target new listener.
          */
         void setListener(TaskListener aListener) {
-            mListener = aListener;
+            mListener = new WeakReference<>(aListener);
         }
 
         /**
@@ -133,24 +137,28 @@ public class SecondScreenActivity extends AppCompatActivity implements TaskListe
         mRestartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View aView) {
-                if (sWorkerAsyncTask.isWorking()) {
-                    sWorkerAsyncTask.cancel(false);
+                if (sWorkerAsyncTask != null) {
+                    if (sWorkerAsyncTask.isWorking()) {
+                        sWorkerAsyncTask.cancel(false);
+                        onTaskDenied();
+                    } else {
+                        startWorkingTask();
+                        onTaskStarted();
+                    }
+                } else {
+                    startWorkingTask();
+                    onTaskStarted();
                 }
-                startWorkingTask();
-                onTaskStarted();
+
             }
         });
 
         mCounterAsyncTask = new CounterAsyncTask();
         mCounterAsyncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        onTaskStarted();
-        if (sWorkerAsyncTask == null) {
-            startWorkingTask();
-        } else {
+        if (sWorkerAsyncTask != null) {
             sWorkerAsyncTask.setListener(this);
-            if (!sWorkerAsyncTask.isWorking()) {
-                startWorkingTask();
-            } else {
+            if (sWorkerAsyncTask.isWorking()) {
+                onTaskStarted();
                 Snackbar snackbar = Snackbar.make(findViewById(R.id.view_for_snackbar),
                         R.string.task_in_progress, Snackbar.LENGTH_LONG);
                 View view = snackbar.getView();
@@ -194,5 +202,13 @@ public class SecondScreenActivity extends AppCompatActivity implements TaskListe
         View view = snackbar.getView();
         view.setBackgroundColor(getColor(R.color.colorPrimary));
         snackbar.show();
+    }
+
+    /**
+     * Notify that task was denied.
+     */
+    private void onTaskDenied() {
+        mRestartButton.setText(getResources().getText(R.string.restart));
+        mLongWorkView.setText(getResources().getText(R.string.task_denied));
     }
 }

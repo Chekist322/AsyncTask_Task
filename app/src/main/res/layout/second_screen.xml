@@ -33,39 +33,39 @@
         android:layout_width="280dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="179dp"
+        android:layout_marginEnd="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
         android:background="@drawable/stroke"
         android:gravity="center_horizontal"
         android:padding="10dp"
-        android:text="@string/job_in_progress"
+        android:text="@string/task_not_active"
         android:textSize="30sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp" />
+        app:layout_constraintRight_toRightOf="parent" />
 
     <Button
         android:id="@+id/restart"
         android:layout_width="280dp"
         android:layout_height="48dp"
         android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
         android:background="@drawable/rect"
         android:paddingEnd="10dp"
         android:paddingStart="10dp"
-        android:text="Button"
+        android:text="@string/restart"
         android:textColor="@android:color/background_light"
         android:textSize="36sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/job_is_done"
-        app:layout_constraintVertical_bias="0.0"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp" />
+        app:layout_constraintVertical_bias="0.0" />
 
     <android.support.design.widget.CoordinatorLayout
         android:id="@+id/view_for_snackbar"
