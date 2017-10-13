@@ -1,5 +1,6 @@
 package com.example.batrakov.asynctask_task;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -9,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.lang.ref.WeakReference;
 
@@ -58,19 +60,22 @@ public class SecondScreenActivity extends AppCompatActivity implements TaskListe
     /**
      * Simulate long operation job and send information about it status in UI after job is done.
      */
-    private final class WorkerAsyncTask extends AsyncTask<Void, Integer, Void> {
+    private static final class WorkerAsyncTask extends AsyncTask<Void, Integer, Void> {
 
         private boolean mIsWorking = false;
         private WeakReference<TaskListener> mListener;
-        private static final int LONG_TASK_WORK_DURATION = 20;
+        private WeakReference<Context> mContextWeakReference;
+        private static final int LONG_TASK_WORK_DURATION = 100;
 
         /**
          * Constructor.
          *
          * @param aListener link to communicate with UI.
+         * @param aContext link to application Context.
          */
-        private WorkerAsyncTask(TaskListener aListener) {
+        private WorkerAsyncTask(TaskListener aListener, Context aContext) {
             mListener = new WeakReference<>(aListener);
+            mContextWeakReference = new WeakReference<>(aContext);
         }
 
         @Override
@@ -83,12 +88,13 @@ public class SecondScreenActivity extends AppCompatActivity implements TaskListe
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             mIsWorking = false;
-            Log.i(TAG, "onPostExecute: " + String.valueOf(mListener.get()));
-            Log.i(TAG, "onPostExecute: " + String.valueOf(mListener));
-            if (mListener != null) {
+            if (mListener.get() != null) {
                 mListener.get().onTaskFinished();
+            } else {
+                if (mContextWeakReference.get() != null) {
+                    Toast.makeText(mContextWeakReference.get(), "Task canceled", Toast.LENGTH_SHORT).show();
+                }
             }
-            mListener = null;
         }
 
         @Override
@@ -108,6 +114,9 @@ public class SecondScreenActivity extends AppCompatActivity implements TaskListe
                     e.printStackTrace();
                 }
                 Log.i(TAG, "doInBackground: " + String.valueOf(counter));
+                if (mListener.get() == null) {
+                    break;
+                }
             }
             return null;
         }
@@ -176,7 +185,7 @@ public class SecondScreenActivity extends AppCompatActivity implements TaskListe
      * Execute new long task.
      */
     private void startWorkingTask() {
-        sWorkerAsyncTask = new WorkerAsyncTask(this);
+        sWorkerAsyncTask = new WorkerAsyncTask(this, getApplicationContext());
         sWorkerAsyncTask.execute();
         Snackbar snackbar = Snackbar.make(findViewById(R.id.view_for_snackbar),
                 R.string.task_restarted, Snackbar.LENGTH_LONG);
@@ -187,8 +196,8 @@ public class SecondScreenActivity extends AppCompatActivity implements TaskListe
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         mCounterAsyncTask.cancel(false);
+        super.onDestroy();
     }
 
     @Override

@@ -19,9 +19,16 @@ public class FirstScreenActivity extends AppCompatActivity {
         gotoSecondScreen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View aView) {
-                Intent intent = new Intent(getBaseContext(), SecondScreenActivity.class);
-                startActivity(intent);
+                startSecondScreenActivity();
             }
         });
+    }
+
+    /**
+     * Start {@link SecondScreenActivity}.
+     */
+    private void startSecondScreenActivity() {
+        Intent intent = new Intent(this, SecondScreenActivity.class);
+        startActivity(intent);
     }
 }
